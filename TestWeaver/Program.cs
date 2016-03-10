@@ -18,7 +18,7 @@ namespace TestWeaver
             Shaft s3 = new Shaft(s1);
 
             s3[1] = true;
-
+            // 
             System.Console.WriteLine("Shaft 1: {0}", s1);
             System.Console.WriteLine("Shaft 2: {0}", s2);
             System.Console.WriteLine("Shaft 3: {0}", s3);
