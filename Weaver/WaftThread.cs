@@ -24,7 +24,7 @@ namespace Weaver
         public WaftThread(System.Drawing.Color color, Shaft shaft)
         {
             ThreadColor = color;
-            Shaft = new Shaft(shaft);
+            Shaft = shaft;
         }
     }
 }

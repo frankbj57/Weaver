@@ -73,15 +73,9 @@ namespace Weaver
         /// <returns>true when the warp thread is lifted up, and thus visible, false otherwise</returns>
         public bool this[int index]
         {
-            get
-            {
-                return _up[index];
-            }
+            get => _up[index];
 
-            set 
-            {
-                 _up[index] = value;
-            }
+            set => _up[index] = value;
         }
 
         /// <summary>

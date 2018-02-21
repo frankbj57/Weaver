@@ -15,7 +15,7 @@ namespace Weaver
     public partial class Sample : Form
     {
         public Pattern Pattern { set; private get; }
-        public float DisplayScale = 1;
+        public int DisplayScale = 1;
 
         public Sample()
         {
@@ -29,35 +29,57 @@ namespace Weaver
                 // Repaint form with new pattern as brush
                 using (var g = e.Graphics)
                 {
-                    Bitmap im = new Bitmap(Pattern.NumWarps, Pattern.NumWafts);
-                    // Bitmap im = new Bitmap(Pattern.NumWarps * DisplayScale, Pattern.NumWafts * DisplayScale);
-                    for (int i = 0; i < Pattern.NumWarps; i++)
-                    {
-                        for (int j = 0; j < Pattern.NumWafts; j++)
-                        {
-                            //for (int k = 0; k < DisplayScale; k++)
-                            //{
-                            //    for (int l = 0; l < DisplayScale; l++)
-                            //    {
-                            //        im.SetPixel(i*DisplayScale+k, j*DisplayScale+l, Pattern[i, j]);
-                            //    }
-                            //}
-                            im.SetPixel(i, j, Pattern[i, j]);
-                        }
-                    }
-                    TextureBrush brush = new TextureBrush(im);
-                    var m = new Matrix();
-                    m.Scale(DisplayScale, DisplayScale);
-                    brush.Transform = m;
-                    g.InterpolationMode = InterpolationMode.Bilinear;
-
                     Size s = this.ClientSize;
+          
+                    Bitmap im = new Bitmap(s.Width, s.Height);
+                    // Bitmap im = new Bitmap(Pattern.NumWarps * DisplayScale, Pattern.NumWafts * DisplayScale);
+                    int x = 0;
+
+                    while (x < s.Width)
                     {
-                        g.FillRectangle(brush, 0, 0, s.Width, s.Height);
+                        int y = 0;
+                        while (y < s.Height)
+                        {
+                            for (int i = 0; i < Pattern.NumWarps; i++)
+                            {
+                                for (int j = 0; j < Pattern.NumWafts; j++)
+                                {
+                                    // Draw one cross point, enlarged by scale
+                                    // im.SetPixel(x, y, Pattern[i, j]);
+                                    // Could be a rectangle instead of setting every single pixel
+                                    for (int k = 0; k < DisplayScale; k++)
+                                    {
+                                        for (int l = 0; l < DisplayScale; l++)
+                                        {
+                                            if (x + i * DisplayScale + k < s.Width
+                                                &&
+                                                y + j * DisplayScale + l < s.Height)
+                                                im.SetPixel(x + i * DisplayScale + k, y + j * DisplayScale + l, Pattern[i, j]);
+                                        }
+                                    }
+                                }
+                            }
+                            y += Pattern.NumWafts * DisplayScale;
+                        }
+                        x += Pattern.NumWarps * DisplayScale;
                     }
+
+                    g.DrawImage(im, new Point(0, 0));
+
+                    // Alternative way, using bitblps, but interpolation mode cannot be set to just stretching
+                    // a bitmap that was not scaled, without interpolation
+                     
+                    //TextureBrush brush = new TextureBrush(im);
+                    //var m = new Matrix();
+                    //m.Scale(DisplayScale, DisplayScale);
+                    //brush.Transform = m;
+                    //g.InterpolationMode = InterpolationMode.Low;
+                    //g.FillRectangle(brush, 0, 0, s.Width, s.Height);
+                    
                 }
 
             }
         }
     }
 }
+

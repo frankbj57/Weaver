@@ -48,7 +48,7 @@ namespace Weaver
             _sample = new Sample();
             _sample.Pattern = _pattern;
             _sample.Visible = true;
-            _sample.DisplayScale = 8;
+            _sample.DisplayScale = 3;
 
             // SetStyle(ControlStyles.ResizeRedraw, true);
         }
@@ -96,8 +96,28 @@ namespace Weaver
                 Size s = this.ClientSize;
                 int i, j;
 
+                // Fill the top with warp colors
                 for (i = 0; i < _pattern.NumWarps; i++)
                 {
+                    using (Brush brush = new SolidBrush(_pattern.WarpThreads_[i].ThreadColor))
+                    {
+                        g.FillRectangle(brush, (i + 1) * CellSize, 0, CellSize, CellSize);
+                    }
+                }
+
+                // Fill the side with waft colors
+                for (i = 0; i < _pattern.NumWafts; i++)
+                {
+                    using (Brush brush = new SolidBrush(_pattern.WaftThreads_[i].ThreadColor))
+                    {
+                        g.FillRectangle(brush, 0, (i + 1) * CellSize, CellSize, CellSize);
+                    }
+                }
+
+                // The rest of the pattern
+                for (i = 0; i < _pattern.NumWarps; i++)
+                {
+                    // Fill the core with resulting colors 
                     for (j = 0; j < _pattern.NumWafts; j++)
                     {
                         using (Brush brush = new SolidBrush(_pattern[i, j]))
@@ -108,10 +128,18 @@ namespace Weaver
                 }
 
                 var Black = Pens.Black;
+
+                // Draw vertical lines
+                // First line is double thickness
+                g.DrawLine(Black, CellSize-1, 0, CellSize-1, s.Height);
                 for (i = 1; i < _pattern.NumWarps + 2; i++)
                 {       
                     g.DrawLine(Black, i * CellSize, 0, i * CellSize, s.Height);
                 }
+
+                // Draw horizontal lines
+                // First line is double thickness
+                g.DrawLine(Black, 0, CellSize-1, s.Width, CellSize-1);
                 for (i = 1; i < _pattern.NumWafts +2; i++)
                 {
                     g.DrawLine(Black, 0, i * CellSize, s.Width, i * CellSize);
@@ -147,28 +175,33 @@ namespace Weaver
             else if ((waft < 0 || waft >= _pattern.NumWafts) && warp >= 0 && warp < _pattern.NumWarps)
             {
                 // Set a warp color
-                var dlg = new ColorDialog();
-
-                var result = dlg.ShowDialog();
-
-                if (result == DialogResult.OK)
+                using (var dlg = new ColorDialog())
                 {
-                    _pattern.WarpThreads_[warp].ThreadColor = dlg.Color;
-                    Invalidate(true);
+
+                    dlg.Color = _pattern.WarpThreads_[warp].ThreadColor;
+                    var result = dlg.ShowDialog();
+
+                    if (result == DialogResult.OK)
+                    {
+                        _pattern.WarpThreads_[warp].ThreadColor = dlg.Color;
+                        Invalidate(true);
+                    }
                 }
             }
             else if ((warp < 0 || warp >= _pattern.NumWarps) && waft >= 0 && waft < _pattern.NumWafts)
             {
                 // Set a waft color
-                var dlg = new ColorDialog();
-
-                var result = dlg.ShowDialog();
-
-                if (result == DialogResult.OK)
+                using (var dlg = new ColorDialog())
                 {
-                    _pattern.WaftThreads_[waft].ThreadColor = dlg.Color;
-                    Invalidate(true);
+                    dlg.Color = _pattern.WaftThreads_[waft].ThreadColor;
+                    var result = dlg.ShowDialog();
 
+                    if (result == DialogResult.OK)
+                    {
+                        _pattern.WaftThreads_[waft].ThreadColor = dlg.Color;
+                        Invalidate(true);
+
+                    }
                 }
             }
             _sample.Invalidate(true);
